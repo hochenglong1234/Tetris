@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws InterruptedException {
-        
+
         Scanner scanner = new Scanner(System.in);
 
         InputHandler inputHandler = new InputHandler();
@@ -12,8 +12,6 @@ public class Main {
         Leaderboard leaderboard = new Leaderboard();
         Board board = new Board(inputHandler, shapeFactory);
         Game game = new Game(board, leaderboard, inputHandler);
-        
-
 
         game.start(scanner);
 

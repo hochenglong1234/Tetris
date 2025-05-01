@@ -2,8 +2,20 @@ package com.example;
 
 import java.util.Scanner;
 
-public class Game {
-    Board board;
+interface Game {
+    void start(Scanner scanner) throws InterruptedException;
+
+    int getScore();
+
+    void gainScore();
+
+    int getLevel();
+
+    void gainLevel();
+}
+
+public class Game2 implements Game {
+    Tetris_Board board;
     Leaderboard leaderboard;
     InputHandler inputhandler;
     ShapeFactory factory;
@@ -11,7 +23,7 @@ public class Game {
     int level;
     boolean gameOver;
 
-    public Game(Board board, Leaderboard leaderboard, InputHandler inputhandler) {
+    public Game2(Tetris_Board board, Leaderboard leaderboard, InputHandler inputhandler) {
         this.board = board;
         this.leaderboard = leaderboard;
         this.factory = board.factory;
@@ -21,6 +33,7 @@ public class Game {
         this.inputhandler = inputhandler;
     }
 
+    @Override
     public void start(Scanner scanner) throws InterruptedException {
         while (!gameOver) {
             leaderboard.printLeaderboard();
@@ -37,18 +50,22 @@ public class Game {
         leaderboard.printLeaderboard();
     }
 
+    @Override
     public int getScore() {
         return score;
     }
 
+    @Override
     public void gainScore() {
         score++;
     }
 
+    @Override
     public int getLevel() {
         return level;
     }
 
+    @Override
     public void gainLevel() {
         level++;
     }
