@@ -1,24 +1,22 @@
 package com.example;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.stream.Collectors;
 
-public class Leaderboard {
-    List<LeaderboardEntry> entries;
+public final class Leaderboard {
 
-    public Leaderboard() {
-        this.entries = new ArrayList<>();
+    public static List<LeaderboardEntry> addEntry(List<LeaderboardEntry> entries, String name, int score) {
+        List<LeaderboardEntry> newEntries = new ArrayList<>(entries);
+        newEntries.add(new LeaderboardEntry(name, score));
+        return newEntries;
     }
 
-    public void addEntry(String name, int score) {
-        entries.add(new LeaderboardEntry(name, score));
-    }
-
-    public void printLeaderboard() {
-        System.out.println("Final Leaderboard:");
-        entries.sort((e1, e2) -> Integer.compare(e2.getScore(), e1.getScore()));
-        for (LeaderboardEntry entry : entries) {
-            System.out.println(entry.getName() + " - " + entry.getScore());
-        }
+    public static List<String> getLeaderboardOutput(List<LeaderboardEntry> entries) {
+        return entries.stream()
+                .sorted(Comparator.comparingInt(LeaderboardEntry::getScore).reversed())
+                .map(entry -> entry.getName() + " - " + entry.getScore())
+                .collect(Collectors.toList());
     }
 }

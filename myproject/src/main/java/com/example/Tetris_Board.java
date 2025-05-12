@@ -1,5 +1,7 @@
 package com.example;
 
+import java.util.Optional;
+
 interface Boards {
     char[][] initializeBoard();
 
@@ -15,14 +17,15 @@ interface Boards {
 }
 
 public class Tetris_Board implements Boards {
-    int WIDTH;
-    int HEIGHT;
-    char[][] board;
-    InputHandler inputHandler;
-    int score = 0;
-    ShapeFactory factory;
+    public final int WIDTH;
+    public final int HEIGHT;
+    private char[][] board;
+    public final InputHandler inputHandler;
+    public final ShapeFactory factory;
+    public int score = 0;
 
-    public Tetris_Board(int WIDTH, int HEIGHT, InputHandler inputHandler, ShapeFactory factory) {
+    public Tetris_Board(int WIDTH, int HEIGHT, InputHandler inputHandler,
+            ShapeFactory factory) {
         this.WIDTH = WIDTH;
         this.HEIGHT = HEIGHT;
         this.inputHandler = inputHandler;
@@ -43,36 +46,40 @@ public class Tetris_Board implements Boards {
 
     @Override
     public boolean dropRandomShape(Shape shape) throws InterruptedException {
-        int x = 5, y = 1;
+        int x = WIDTH / 2 - 1;
+        int y = 1;
 
-        if (!canMoveDown(shape, x, y)) {
+        if (!canMove(shape, x, y)) {
             return false;
         }
 
         while (true) {
-            int input = inputHandler.getUserInput();
-            if (input == 4 && canMove(shape, x - 1, y))
-                x--;
-            else if (input == 6 && canMove(shape, x + 1, y))
-                x++;
-            else if (input == 5 && canMoveDown(shape, x, y - 1))
-                y++;
-            else if (input == 8) {
-                Shape rotatedShape = shape.rotateClockwise();
-                if (canMove(rotatedShape, x, y))
-                    shape = rotatedShape;
+            Thread.sleep(500);
+            Optional<Integer> inputOpt = inputHandler.getUserInput(System.in);
+            if (inputOpt.isPresent()) {
+                int input = inputOpt.get();
+                if (input == 4 && canMove(shape, x - 1, y)) {
+                    x--;
+                } else if (input == 6 && canMove(shape, x + 1, y)) {
+                    x++;
+                } else if (input == 5 && canMove(shape, x, y + 1)) {
+                    y++;
+                } else if (input == 8) {
+                    Shape rotated = shape.rotateClockwise();
+                    if (canMove(rotated, x, y)) {
+                        shape = rotated;
+                    }
+                }
             }
 
-            if (!canMoveDown(shape, x, y)) {
+            if (!canMove(shape, x, y + 1)) {
                 board = placeShape(shape, x, y);
                 break;
             }
 
             y++;
             System.out.print(printBoard(shape, x, y));
-            Thread.sleep(600);
         }
-
         return true;
     }
 
@@ -80,15 +87,15 @@ public class Tetris_Board implements Boards {
     public boolean canMove(Shape shape, int x, int y) {
         for (int i = 0; i < shape.getShape().length; i++) {
             for (int j = 0; j < shape.getShape()[i].length; j++) {
-                if (shape.getShape()[i][j] != ' ' && board[y + i][x + j] != ' ')
-                    return false;
+                if (shape.getShape()[i][j] != ' ') {
+                    if (y + i < 0 || y + i >= HEIGHT || x + j < 0 || x + j >= WIDTH ||
+                            board[y + i][x + j] != ' ') {
+                        return false;
+                    }
+                }
             }
         }
         return true;
-    }
-
-    public boolean canMoveDown(Shape shape, int x, int y) {
-        return canMove(shape, x, y + 1);
     }
 
     @Override
@@ -119,8 +126,9 @@ public class Tetris_Board implements Boards {
                 for (int k = i; k > 1; k--) {
                     System.arraycopy(board[k - 1], 1, board[k], 1, WIDTH - 2);
                 }
-                for (int j = 1; j < WIDTH - 1; j++)
+                for (int j = 1; j < WIDTH - 1; j++) {
                     board[1][j] = ' ';
+                }
                 cleared++;
             }
         }
@@ -130,17 +138,16 @@ public class Tetris_Board implements Boards {
     @Override
     public String printBoard(Shape shape, int x, int y) {
         StringBuilder output = new StringBuilder();
-        output.append("\033[H\033[2J");
+        output.append("\033[H\033[2J"); // Clear screen
         output.append("\n");
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
                 boolean shapePrinted = false;
-                if (shape != null && i >= y && i < y + shape.getShape().length && j >= x
-                        && j < x + shape.getShape()[0].length) {
-                    if (shape.getShape()[i - y][j - x] != ' ') {
-                        output.append(shape.getShape()[i - y][j - x]);
-                        shapePrinted = true;
-                    }
+                if (shape != null && i >= y && i < y + shape.getShape().length &&
+                        j >= x && j < x + shape.getShape()[0].length &&
+                        shape.getShape()[i - y][j - x] != ' ') {
+                    output.append(shape.getShape()[i - y][j - x]);
+                    shapePrinted = true;
                 }
                 if (!shapePrinted)
                     output.append(board[i][j]);

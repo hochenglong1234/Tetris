@@ -1,8 +1,8 @@
 package com.example;
 
-public class LeaderboardEntry {
-    String name;
-    int score;
+public final class LeaderboardEntry {
+    public String name;
+    public int score;
 
     public LeaderboardEntry(String name, int score) {
         this.name = name;
