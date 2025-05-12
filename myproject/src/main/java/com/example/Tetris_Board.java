@@ -19,7 +19,7 @@ interface Boards {
 public class Tetris_Board implements Boards {
     public final int WIDTH;
     public final int HEIGHT;
-    private char[][] board;
+    public char[][] board;
     public final InputHandler inputHandler;
     public final ShapeFactory factory;
     public int score = 0;
